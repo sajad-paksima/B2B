@@ -19,12 +19,6 @@ def register_two_user(username1, username2):
         "password": "1234"
     })
     token2 = response2.json()["token"]
-    # token1 = Token.objects.get(user=User.objects.get(username=username1)).token
-    # token2 = Token.objects.get(user=User.objects.get(username=username2)).token
-
-# def delete_users(username1, username2):
-#     User.objects.get(username=username1).delete()
-#     User.objects.get(username=username2).delete()
 
 def submit_charge(amount, receiver):
     requests.post("http://localhost:8000/submit/charge/", {
