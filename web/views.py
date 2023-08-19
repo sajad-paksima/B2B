@@ -49,20 +49,15 @@ def submit_charge(request):
             amount = Decimal(request.POST["amount"])
             username = request.POST["receiver"]
             with transaction.atomic():
-                # try:
-                # except User.DoesNotExist:
-                #     return JsonResponse({
-                #         "message": "This user doesn't exist!"
-                #     }, encoder=JSONEncoder, status=404)
-                # charge = Charge.objects.create(date=now, amount=amount, receiver=receiver)
                 receiver = get_object_or_404(User.objects.select_for_update(), username=username)
-                Charge.objects.create(date=now, amount=amount, receiver=receiver)
                 receiver.profile.credit += amount
                 receiver.save()
+                Charge.objects.create(date=now, amount=amount, receiver=receiver)
             return JsonResponse({
                 "message": "The receiver has charged successfully!"
             }, encoder=JSONEncoder, status=200)
     except Exception as e:
+        print(e)
         return handle_exception(e)
 
 
@@ -75,9 +70,9 @@ def submit_sell(request):
         phone_number = request.POST["phone_number"]
         with transaction.atomic():
             seller = get_object_or_404(User.objects.select_for_update(), token__token=this_token)
-            Sell.objects.create(phone_number=phone_number, date=date, amount=amount, seller=seller)
             seller.profile.credit -= amount
             seller.save()
+            Sell.objects.create(phone_number=phone_number, date=date, amount=amount, seller=seller)
         return JsonResponse({
             "message": "The seller has sold successfully!"
         }, encoder=JSONEncoder, status=200)
